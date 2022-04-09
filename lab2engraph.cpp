@@ -31,8 +31,6 @@ void main()                                                                   \n
 }";
 
 GLuint VBO;
-GLuint gScaleLocation;
-
 GLuint gWorldLocation;
 
 void RenderSceneCB() {
@@ -125,8 +123,8 @@ static void compileShaders() {
 
 	//gScaleLocation = glGetUniformLocation(ShaderProgram, "gScale");
 	//assert(gScaleLocation != 0xFFFFFFFF);
-	gScaleLocation = glGetUniformLocation(ShaderProgram, "gWorld");
-	assert(gScaleLocation != 0xFFFFFFFF);
+	gWorldLocation = glGetUniformLocation(ShaderProgram, "gWorld");
+	assert(gWorldLocation != 0xFFFFFFFF);
 }
 
 
