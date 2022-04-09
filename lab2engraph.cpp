@@ -97,6 +97,16 @@ int main(int argc, char** argv)
 	createShader(ShaderProgram, pVS, GL_VERTEX_SHADER); 
 	createShader(ShaderProgram, pFS, GL_FRAGMENT_SHADER);
 	
+	glLinkProgram(ShaderProgram);
+
+	GLint Success = 0;					// проверяем на успешную линковку
+	GLchar ErrorLog[1024] = { 0 };
+	glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &Success);
+	if (Success == 0) {
+		glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
+		fprintf(stderr, "Error linking shader program: '%s'\n", ErrorLog);
+	}
+	
 	
 	// нужно сделать ленивую функцию
 	glutIdleFunc(RenderSceneCB);
