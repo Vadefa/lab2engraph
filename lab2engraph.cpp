@@ -27,7 +27,7 @@ out vec4 FragColor;                                                           \n
                                                                               \n\
 void main()                                                                   \n\
 {                                                                             \n\
-    FragColor = vec4(1.0, 0.0, 0.0, 1.0);                                     \n\
+    FragColor = vec4(1, 0.6, 0.0, 1.0);                                     \n\
 }";
 
 GLuint VBO;
@@ -37,7 +37,6 @@ void RenderSceneCB() {
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// теперь размер - не uniform-переменная
 	static float Scale = 0.0f;
 	Scale += 0.011f;
 
