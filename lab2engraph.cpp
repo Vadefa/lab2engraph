@@ -37,14 +37,14 @@ void RenderSceneCB() {
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// теперь размер константный
+	// теперь размер - не uniform-переменная
 	static float Scale = 0.0f;
-	Scale += 0.001f;
+	Scale += 0.011f;
 
 	//подготавливаем матрицу для плавного изменения треугольником значения координаты х. Остальные координаты 3-го столбца = 0
 	glm::mat4x4 World{};
-	World[0][0] = 1.0f; World[0][1] = 0.0f; World[0][2] = 0.0f; World[0][3] = sinf(Scale);
-	World[1][0] = 0.0f; World[1][1] = 1.0f; World[1][2] = 0.0f; World[1][3] = 0.0f;
+	World[0][0] = cosf(Scale); World[0][1] = -sinf(Scale); World[0][2] = 0.0f; World[0][3] = 0.0f;
+	World[1][0] = sinf(Scale); World[1][1] = cosf(Scale); World[1][2] = 0.0f; World[1][3] = 0.0f;
 	World[2][0] = 0.0f; World[2][1] = 0.0f; World[2][2] = 1.0f; World[2][3] = 0.0f;
 	World[3][0] = 0.0f; World[3][1] = 0.0f; World[3][2] = 0.0f; World[3][3] = 1.0f;
 
