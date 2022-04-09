@@ -57,7 +57,7 @@ void RenderSceneCB() {
 	glDisableVertexAttribArray(0);
 
 	glutSwapBuffers();
-	//glutPostRedisplay(); // останавливает повторный вызов ленивой функции
+	glutPostRedisplay(); // останавливает повторный вызов ленивой функции
 }
 
 
