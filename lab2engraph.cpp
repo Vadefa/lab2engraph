@@ -1,10 +1,35 @@
 ﻿#include <iostream>
+#include <string>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+//код скрипта вершинного шейдера:
+static const char* pVS = "                                                    \n\
+#version 330                                                                  \n\
+                                                                              \n\
+layout (location = 0) in vec3 Position;                                       \n\
+                                                                              \n\
+void main()                                                                   \n\
+{                                                                             \n\
+    gl_Position = vec4(0.5 * Position.x, 0.5 * Position.y, Position.z, 1.0);  \n\
+}";
+
+//код скрипта фрагментного шейдера
+static const char* pFS = "                                                    \n\
+#version 330                                                                  \n\
+                                                                              \n\
+out vec4 FragColor;                                                           \n\
+                                                                              \n\
+void main()                                                                   \n\
+{                                                                             \n\
+    FragColor = vec4(1.0, 0.0, 0.0, 1.0);                                     \n\
+}";
+
+
 
 void RenderSceneCB() {
 
@@ -15,6 +40,32 @@ void RenderSceneCB() {
 
 	glutPostRedisplay(); // останавливает повторный вызов ленивой функции
 }
+
+
+static void createShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType) {
+	//GLuint ShaderProgram = glCreateProgram();
+
+	GLuint ShaderObj = glCreateShader(ShaderType);
+
+	const GLchar* p[1];
+	p[0] = pShaderText;
+	GLint Lengths[1];
+	Lengths[0] = strlen(pShaderText);
+	glShaderSource(ShaderObj, 1, p, Lengths);
+
+	glCompileShader(ShaderObj); 
+
+	GLint success;
+	glGetShaderiv(ShaderObj, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		GLchar InfoLog[1024];
+		glGetShaderInfoLog(ShaderObj, sizeof(InfoLog), NULL, InfoLog);
+		fprintf(stderr, "Error compiling shader type %d: '%s'\n", ShaderType, InfoLog);
+	}
+
+	glAttachShader(ShaderProgram, ShaderObj);
+}
+
 
 int main(int argc, char** argv)
 {
@@ -39,6 +90,14 @@ int main(int argc, char** argv)
 
 	////////lab 2//////////
 
+	//нужно поработать с шейдерами
+
+	GLuint ShaderProgram = glCreateProgram();
+
+	createShader(ShaderProgram, pVS, GL_VERTEX_SHADER); 
+	createShader(ShaderProgram, pFS, GL_FRAGMENT_SHADER);
+	
+	
 	// нужно сделать ленивую функцию
 	glutIdleFunc(RenderSceneCB);
 
