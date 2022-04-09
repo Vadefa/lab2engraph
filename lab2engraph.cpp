@@ -29,18 +29,34 @@ void main()                                                                   \n
     FragColor = vec4(1.0, 0.0, 0.0, 1.0);                                     \n\
 }";
 
-
+GLuint VBO;
 
 void RenderSceneCB() {
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	glutSwapBuffers();
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDisableVertexAttribArray(0);
 
 	glutPostRedisplay(); // останавливает повторный вызов ленивой функции
 }
 
+
+static void createVertexBuffer() {
+	glm::vec3 vecArrTrngl[3];
+	vecArrTrngl[0] = glm::vec3(-1.0f, -1.0f, 0.0f);
+	vecArrTrngl[1] = glm::vec3(1.0f, -1.0f, 0.0f);
+	vecArrTrngl[2] = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vecArrTrngl), vecArrTrngl, GL_STATIC_DRAW);
+
+}
 
 static void createShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType) {
 	//GLuint ShaderProgram = glCreateProgram();
@@ -66,6 +82,29 @@ static void createShader(GLuint ShaderProgram, const char* pShaderText, GLenum S
 	glAttachShader(ShaderProgram, ShaderObj);
 }
 
+static void compileShaders() {
+
+	//нужно поработать с шейдерами
+
+	GLuint ShaderProgram = glCreateProgram();
+
+	createShader(ShaderProgram, pVS, GL_VERTEX_SHADER);
+	createShader(ShaderProgram, pFS, GL_FRAGMENT_SHADER);
+
+	glLinkProgram(ShaderProgram);
+
+	GLint Success = 0;					// проверяем на успешную линковку
+	GLchar ErrorLog[1024] = { 0 };
+	glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &Success);
+	if (Success == 0) {
+		glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
+		fprintf(stderr, "Error linking shader program: '%s'\n", ErrorLog);
+	}
+
+	glValidateProgram(ShaderProgram);
+}
+
+
 
 int main(int argc, char** argv)
 {
@@ -88,26 +127,14 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	createVertexBuffer();
+
 	////////lab 2//////////
+	//сначала - создадим шейдеры
+	compileShaders();
 
-	//нужно поработать с шейдерами
+	glutMainLoop();
 
-	GLuint ShaderProgram = glCreateProgram();
-
-	createShader(ShaderProgram, pVS, GL_VERTEX_SHADER); 
-	createShader(ShaderProgram, pFS, GL_FRAGMENT_SHADER);
-	
-	glLinkProgram(ShaderProgram);
-
-	GLint Success = 0;					// проверяем на успешную линковку
-	GLchar ErrorLog[1024] = { 0 };
-	glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &Success);
-	if (Success == 0) {
-		glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
-		fprintf(stderr, "Error linking shader program: '%s'\n", ErrorLog);
-	}
-	
-	
 	// нужно сделать ленивую функцию
 	glutIdleFunc(RenderSceneCB);
 
