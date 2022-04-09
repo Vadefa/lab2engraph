@@ -10,13 +10,13 @@
 //код скрипта вершинного шейдера:
 static const char* pVS = "                                                    \n\
 #version 330                                                                  \n\
-uniform float gScale;														  \n\
+uniform mat4 gWorld;														  \n\
                                                                               \n\
 layout (location = 0) in vec3 Position;                                       \n\
                                                                               \n\
 void main()                                                                   \n\
 {                                                                             \n\
-	gl_Position = vec4(gScale * Position.x, gScale * Position.y, Position.z, 1.0); \n\
+	gl_Position = gWorld * vec4(Position, 1.0);								  \n\
 }";
 
 //код скрипта фрагментного шейдера
@@ -39,10 +39,9 @@ void RenderSceneCB() {
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// передаём в шейдер размер
+	// теперь размер константный
 	static float Scale = 0.0f;
 	Scale += 0.001f;
-	glUniform1f(gScaleLocation, sinf(Scale));
 
 	//подготавливаем матрицу для плавного изменения треугольником значения координаты х. Остальные координаты 3-го столбца = 0
 	glm::mat4x4 World{};
@@ -124,7 +123,9 @@ static void compileShaders() {
 
 	glUseProgram(ShaderProgram);
 
-	gScaleLocation = glGetUniformLocation(ShaderProgram, "gScale");
+	//gScaleLocation = glGetUniformLocation(ShaderProgram, "gScale");
+	//assert(gScaleLocation != 0xFFFFFFFF);
+	gScaleLocation = glGetUniformLocation(ShaderProgram, "gWorld");
 	assert(gScaleLocation != 0xFFFFFFFF);
 }
 
@@ -159,9 +160,6 @@ int main(int argc, char** argv)
 
 	//теперь нужно задать ленивую функцию
 	glutIdleFunc(RenderSceneCB);
-
-
-	
 
 	glutMainLoop();
 }
