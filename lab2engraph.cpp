@@ -1,4 +1,8 @@
-﻿#include <iostream>
+﻿#define ToRadian(x) ((x) * M_PI / 180.0f)
+#define ToDegree(x) ((x) * 180.0f / M_PI)
+
+
+#include <iostream>
 #include <string>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
@@ -33,6 +37,65 @@ void main()                                                                   \n
 GLuint VBO;
 GLuint gWorldLocation;
 
+
+
+inline glm::mat4x4 operator*(const glm::mat4x4& Right) //const
+{
+	glm::mat4x4 Ret;
+	for (unsigned int i = 0; i < 4; i++) {
+		for (unsigned int j = 0; j < 4; j++) {
+			Ret[i][j] = Ret[i][0] * Right[0][j] +
+				Ret[i][1] * Right[1][j] +
+				Ret[i][2] * Right[2][j] +
+				Ret[i][3] * Right[3][j];
+		}
+	}
+	return Ret;
+}
+
+class Pipeline
+{
+public:
+	Pipeline()
+	{
+		//...
+	}
+
+	void Scale(float ScaleX, float ScaleY, float ScaleZ)
+	{
+		//...
+	}
+
+	void WorldPos(float x, float y, float z)
+	{
+		//...
+	}
+
+	void Rotate(float RotateX, float RotateY, float RotateZ)
+	{
+		//...
+	}
+
+	const glm::mat4x4* GetTrans();
+private:
+	glm::vec3 m_scale;
+	glm::vec3 m_worldPos;
+	glm::vec3 m_rotateInfo;
+	glm::mat4x4 m_transformation;
+};
+
+const glm::mat4x4* Pipeline::GetTrans()
+{
+	glm::mat4x4 ScaleTrans, RotateTrans, TranslationTrans;
+	
+	InitScaleTransform(ScaleTrans);
+	InitRotateTransform(RotateTrans);
+	InitTranslationTransform(TranslationTrans);
+	m_transformation = TranslationTrans * RotateTrans * ScaleTrans;
+	return &m_transformation;
+}
+
+
 void RenderSceneCB() {
 
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -47,6 +110,14 @@ void RenderSceneCB() {
 	World[3][0] = 0.0f;			World[3][1] = 0.0f;			World[3][2] = 0.0f;			World[3][3] = 1.0f;
 
 	glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, &World[0][0]);
+
+
+	Pipeline p;
+	p.Scale(sinf(Scale * 0.1f), sinf(Scale * 0.1f), sinf(Scale * 0.1f));
+	p.WorldPos(sinf(Scale), 0.0f, 0.0f);
+	p.Rotate(sinf(Scale) * 90.0f, sinf(Scale) * 90.0f, sinf(Scale) * 90.0f);
+	glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, (const GLfloat*)p.GetTrans());
+
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
