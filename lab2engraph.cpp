@@ -1,6 +1,5 @@
-﻿#define M_PI = 3.14f
-#define ToRadian(x) ((x) * M_PI / 180.0f)
-#define ToDegree(x) ((x) * 180.0f / M_PI)
+﻿#define ToRadian(x) ((x) * 3.14f/ 180.0f)
+#define ToDegree(x) ((x) * 180.0f / 3.14f)
 
 
 #include <iostream>
@@ -71,14 +70,14 @@ public:
 
 	void Scale(float ScaleX, float ScaleY, float ScaleZ)
 	{
-		m_scale[0] = ScaleX;
-		m_scale[1] = ScaleY;
-		m_scale[2] = ScaleZ;
+		m_scale[0] = ToRadian(sqrt(1 - pow (ScaleX, 2)));	// сделали косинус
+		m_scale[1] = ToRadian(ScaleY);
+		m_scale[2] = ToRadian(ScaleZ);
 	}
 
 	void WorldPos(float x, float y, float z)
 	{
-		m_worldPos[0] = ToRadian(x);
+		m_worldPos[0] = x;
 		m_worldPos[1] = y;
 		m_worldPos[2] = z;
 	}
@@ -106,12 +105,14 @@ void Pipeline::InitScaleTransform(glm::mat4x4& m) {
 	m[2][0] = 0.0f;			m[2][1] = 0.0f;			m[2][2] = m_scale[2];	m[2][3] = 0.0f;
 	m[3][0] = 0.0f;			m[3][1] = 0.0f;			m[3][2] = 0.0f;			m[3][3] = 1.0f;
 }
-void Pipeline::InitRotateTransform(glm::mat4x4& m) {
-
-	m[0][0] = sqrt(1 - pow(m_rotateInfo[0], 2));	m[0][1] = -m_rotateInfo[1];						m[0][2] = 0.0f;		m[0][3] = 0.0f;
-	m[1][0] = m_rotateInfo[0];						m[1][1] = sqrt(1 - pow(m_rotateInfo[1], 2));	m[1][2] = 0.0f;		m[1][3] = 0.0f;
+void Pipeline::InitRotateTransform(glm::mat4x4& mm) {
+	glm::mat4x4 m;
+	m[0][0] = m_rotateInfo[0];						m[0][1] = -m_rotateInfo[1];						m[0][2] = 0.0f;		m[0][3] = 0.0f;
+	m[1][0] = m_rotateInfo[1];						m[1][1] = m_rotateInfo[0];						m[1][2] = 0.0f;		m[1][3] = 0.0f;
 	m[2][0] = 0.0f;									m[2][1] = 0.0f;									m[2][2] = 0.0f;		m[2][3] = 0.0f;
 	m[3][0] = 0.0f;									m[3][1] = 0.0f;									m[3][2] = 0.0f;		m[3][3] = 1.0f;
+
+	mm = mm * m;
 }
 void Pipeline::InitTranslationTransform(glm::mat4x4& m) {
 
@@ -137,16 +138,7 @@ void RenderSceneCB() {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	static float Scale = 0.0f;
-	Scale += 0.001f;
-
-	//glm::mat4x4 World{};
-	//World[0][0] = sinf(Scale);	World[0][1] = 0.0f;			World[0][2] = 0.0f;			World[0][3] = 0.0f;
-	//World[1][0] = 0.0f;			World[1][1] = cosf(Scale);	World[1][2] = 0.0f;			World[1][3] = 0.0f;
-	//World[2][0] = 0.0f;			World[2][1] = 0.0f;			World[2][2] = sinf(Scale);	World[2][3] = 0.0f;
-	//World[3][0] = 0.0f;			World[3][1] = 0.0f;			World[3][2] = 0.0f;			World[3][3] = 1.0f;
-
-	//glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, &World[0][0]);
-
+	Scale += 0.01f;
 
 	Pipeline p;
 	p.Scale(sinf(Scale * 0.1f), sinf(Scale * 0.1f), sinf(Scale * 0.1f));
