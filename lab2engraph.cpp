@@ -10,12 +10,13 @@
 //код скрипта вершинного шейдера:
 static const char* pVS = "                                                    \n\
 #version 330                                                                  \n\
+uniform float gScale;														  \n\
                                                                               \n\
 layout (location = 0) in vec3 Position;                                       \n\
                                                                               \n\
 void main()                                                                   \n\
 {                                                                             \n\
-    gl_Position = vec4(0.5 * Position.x, 0.5 * Position.y, Position.z, 1.0);  \n\
+	gl_Position = vec4(gScale * Position.x, gScale * Position.y, Position.z, 1.0); \n\
 }";
 
 //код скрипта фрагментного шейдера
@@ -30,10 +31,18 @@ void main()                                                                   \n
 }";
 
 GLuint VBO;
+GLuint gScaleLocation;
 
 void RenderSceneCB() {
 
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	
+	static float Scale = 0.0f;
+	Scale += 0.001f;
+	glUniform1f(gScaleLocation, sinf(Scale));
+
+
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -105,6 +114,9 @@ static void compileShaders() {
 	glValidateProgram(ShaderProgram);
 
 	glUseProgram(ShaderProgram);
+
+	gScaleLocation = glGetUniformLocation(ShaderProgram, "gScale");
+	assert(gScaleLocation != 0xFFFFFFFF);
 }
 
 
@@ -131,19 +143,17 @@ int main(int argc, char** argv)
 	}
 
 	createVertexBuffer();
+
 	////////lab 2//////////
 	//сначала - создадим шейдеры
 	compileShaders();
 
+
+	// нужно задать ленивую функцию
+	glutIdleFunc(RenderSceneCB);
+
+
 	glutMainLoop();
-
-	// нужно сделать ленивую функцию
-	//glutIdleFunc(RenderSceneCB);
-
-	//// И снова у нас проблемы. Мы ещё не рассмотрели функции шейдеров, поэтому у нас их нет. Вернёмся к уроку 4.
-	///*gScaleLocation = glGetUniformLocation(ShaderProgram, "gScale");
-	//assert(gScaleLocation != 0xFFFFFFFF);*/
-
 
 	//struct Matrix4f {
 	//	glm::mat4x4 m{};
@@ -151,15 +161,15 @@ int main(int argc, char** argv)
 
 	//GLuint gWorldLocation;
 
-	////тут у нас происходит непонятка в sinf(Scale). Scale это uniform-переменная. Нужно вернуться к уроку 5 и рассмотреть их.
-	////Matrix4f World;
-	////World.m[0][0] = 1.0f; World.m[0][1] = 0.0f; World.m[0][2] = 0.0f; World.m[0][3] = sinf(Scale);
-	////World.m[1][0] = 0.0f; World.m[1][1] = 1.0f; World.m[1][2] = 0.0f; World.m[1][3] = 0.0f;
-	////World.m[2][0] = 0.0f; World.m[2][1] = 0.0f; World.m[2][2] = 1.0f; World.m[2][3] = 0.0f;
-	////World.m[3][0] = 0.0f; World.m[3][1] = 0.0f; World.m[3][2] = 0.0f; World.m[3][3] = 1.0f;
-	//
-	///////////////////////////
-	//
+	//тут у нас происходит непонятка в sinf(Scale). Scale это uniform-переменная. Нужно вернуться к уроку 5 и рассмотреть их.
+	//Matrix4f World;
+	//World.m[0][0] = 1.0f; World.m[0][1] = 0.0f; World.m[0][2] = 0.0f; World.m[0][3] = sinf(Scale);
+	//World.m[1][0] = 0.0f; World.m[1][1] = 1.0f; World.m[1][2] = 0.0f; World.m[1][3] = 0.0f;
+	//World.m[2][0] = 0.0f; World.m[2][1] = 0.0f; World.m[2][2] = 1.0f; World.m[2][3] = 0.0f;
+	//World.m[3][0] = 0.0f; World.m[3][1] = 0.0f; World.m[3][2] = 0.0f; World.m[3][3] = 1.0f;
+	
+	/////////////////////////
+	
 
 	//glutMainLoop();
 }
