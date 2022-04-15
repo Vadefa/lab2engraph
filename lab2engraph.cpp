@@ -37,22 +37,6 @@ void main()                                                                   \n
 GLuint VBO;
 GLuint gWorldLocation;
 
-
-
-inline glm::mat4x4 operator*(const glm::mat4x4& Right) //const
-{
-	glm::mat4x4 Ret;
-	for (unsigned int i = 0; i < 4; i++) {
-		for (unsigned int j = 0; j < 4; j++) {
-			Ret[i][j] = Ret[i][0] * Right[0][j] +
-				Ret[i][1] * Right[1][j] +
-				Ret[i][2] * Right[2][j] +
-				Ret[i][3] * Right[3][j];
-		}
-	}
-	return Ret;
-}
-
 class Pipeline
 {
 public:
