@@ -24,7 +24,7 @@ out vec4 Color;                                                                 
 void main()                                                                         \n\
 {                                                                                   \n\
     gl_Position = gWorld * vec4(Position, 1.0);                                     \n\
-    Color = vec4(clamp(Position, 0.0, 0.8), 1.0);                                   \n\
+    Color = vec4(clamp(Position, 0.0, 1.0), 1.0);                                   \n\
 }";
 
 //код скрипта фрагментного шейдера
@@ -139,10 +139,11 @@ void RenderSceneCB() {
 
 
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO); 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 	glDisableVertexAttribArray(0);
 
 	glutSwapBuffers();
@@ -151,14 +152,24 @@ void RenderSceneCB() {
 
 
 static void createVertexBuffer() {
-	glm::vec3 vecArrTrngl[3];
+	glm::vec3 vecArrTrngl[4];
 	vecArrTrngl[0] = glm::vec3(-1.0f, -1.0f, 0.0f);
-	vecArrTrngl[1] = glm::vec3(1.0f, -1.0f, 0.0f);
-	vecArrTrngl[2] = glm::vec3(0.0f, 1.0f, 0.0f);
+	vecArrTrngl[1] = glm::vec3(0.0f, -1.0f, 1.0f);
+	vecArrTrngl[2] = glm::vec3(1.0f, -1.0f, 0.0f);
+	vecArrTrngl[3] = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vecArrTrngl), vecArrTrngl, GL_STATIC_DRAW);
+
+	unsigned int Indices[] = {	0, 3, 1,
+								1, 3, 2,
+								2, 3, 0,
+								0, 2, 1 };
+
+	glGenBuffers(1, &IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 
 }
 
