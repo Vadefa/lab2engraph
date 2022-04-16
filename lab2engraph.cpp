@@ -62,6 +62,10 @@ public:
 		m_persProj.zNear = 0.0f;
 		m_persProj.zFar = 0.0f;
 
+		m_camera.Pos = glm::vec3{0,0,0};
+		m_camera.Target = glm::vec3{0,0,0};
+		m_camera.Up = glm::vec3{0,0,0};
+
 		m_transformation[0][0] = 0.0f;	m_transformation[0][1] = 0.0f;	m_transformation[0][2] = 0.0f;	m_transformation[0][3] = 0.0f;
 		m_transformation[1][0] = 0.0f;	m_transformation[1][1] = 0.0f;	m_transformation[1][2] = 0.0f;	m_transformation[1][3] = 0.0f;
 		m_transformation[2][0] = 0.0f;	m_transformation[2][1] = 0.0f;	m_transformation[2][2] = 0.0f;	m_transformation[2][3] = 0.0f;
@@ -108,6 +112,7 @@ public:
 	void InitRotateTransform(glm::mat4x4& m);
 	void InitTranslationTransform(glm::mat4x4& m);
 	void InitPerspectiveProj(glm::mat4x4& m) const;
+	void InitCameraTransform(glm::mat4x4& m, const glm::vec3& Target, const glm::vec3& Up);
 
 private:
 	glm::vec3 m_scale;
@@ -177,19 +182,7 @@ void Pipeline::InitPerspectiveProj(glm::mat4x4& m) const
 	m[3][2] = 1.0f;
 	m[3][3] = 0.0f;
 }
-
-const glm::mat4x4* Pipeline::GetTrans()
-{
-	glm::mat4x4 PersProjTrans, ScaleTrans, RotateTrans, TranslationTrans = glm::mat4x4{ 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
-
-	InitPerspectiveProj(PersProjTrans);
-	InitScaleTransform(ScaleTrans);
-	InitRotateTransform(RotateTrans);
-	InitTranslationTransform(TranslationTrans);
-	m_transformation = PersProjTrans * TranslationTrans * RotateTrans * ScaleTrans;
-	return &m_transformation;
-}
-void InitCameraTransform(glm::mat4x4 m, const glm::vec3& Target, const glm::vec3& Up) {
+void Pipeline::InitCameraTransform(glm::mat4x4& m, const glm::vec3& Target, const glm::vec3& Up) {
 	glm::vec3 N = Target;
 	N = glm::normalize(N);
 	glm::vec3 U = Up;
@@ -202,6 +195,34 @@ void InitCameraTransform(glm::mat4x4 m, const glm::vec3& Target, const glm::vec3
 	m[2][0] = N.x; m[2][1] = N.y; m[2][2] = N.z; m[2][3] = 0.0f;
 	m[3][0] = 0.0f; m[3][1] = 0.0f; m[3][2] = 0.0f; m[3][3] = 1.0f;
 }
+const glm::mat4x4* Pipeline::GetTrans()
+{
+	/*glm::mat4x4 PersProjTrans, ScaleTrans, RotateTrans, TranslationTrans = glm::mat4x4{ 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
+
+	InitPerspectiveProj(PersProjTrans);
+	InitScaleTransform(ScaleTrans);
+	InitRotateTransform(RotateTrans);
+	InitTranslationTransform(TranslationTrans);
+	m_transformation = PersProjTrans * TranslationTrans * RotateTrans * ScaleTrans;
+	return &m_transformation;*/
+
+	glm::mat4x4 ScaleTrans, RotateTrans, TranslationTrans, CameraTranslationTrans, CameraRotateTrans, PersProjTrans;
+	
+	InitScaleTransform(ScaleTrans);
+	InitRotateTransform(RotateTrans);
+	InitTranslationTransform(TranslationTrans);
+	InitTranslationTransform(CameraTranslationTrans);
+	InitCameraTransform(CameraRotateTrans, m_camera.Target, m_camera.Up);
+
+	InitPerspectiveProj(PersProjTrans);
+
+	m_transformation = PersProjTrans * CameraRotateTrans *
+		CameraTranslationTrans * TranslationTrans *
+		RotateTrans * ScaleTrans;
+
+	return &m_transformation;
+}
+
 
 void RenderSceneCB() {
 
@@ -215,6 +236,12 @@ void RenderSceneCB() {
 	p.Scale(sinf(Scale * 0.1f), cosf(Scale * 0.1f), sinf(Scale * 0.1f));
 	p.WorldPos(sinf(Scale), 0.0f, 0.0f);
 	p.Rotate(sinf(Scale) * 90.0f, -sinf(Scale) * 90.0f, cosf(Scale) * 90.0f);
+	
+	glm::vec3 CameraPos(1.0f, 1.0f, -3.0f);
+	glm::vec3 CameraTarget(0.45f, 0.0f, 1.0f);
+	glm::vec3 CameraUp(0.0f, 1.0f, 0.0f);
+	p.SetCamera(CameraPos, CameraTarget, CameraUp);
+
 	glUniformMatrix4fv(gWVP, 1, GL_TRUE, (const GLfloat*)p.GetTrans());
 
 
