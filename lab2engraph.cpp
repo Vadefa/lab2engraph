@@ -188,7 +188,7 @@ void RenderSceneCB() {
 	Scale += 0.01f;
 
 	Pipeline p;
-	p.SetPerspectiveProj(30.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 10.0f, 1000.0f);
+	p.SetPerspectiveProj(30.0f, WINDOW_WIDTH, WINDOW_HEIGHT, 10.0f, 10000.0f);
 	p.Scale(sinf(Scale * 0.1f), cosf(Scale * 0.1f), sinf(Scale * 0.1f));
 	p.WorldPos(sinf(Scale), 0.0f, 0.0f);
 	p.Rotate(sinf(Scale) * 90.0f, -sinf(Scale) * 90.0f, cosf(Scale) * 90.0f);
