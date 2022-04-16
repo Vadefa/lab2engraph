@@ -67,9 +67,13 @@ public:
 	}
 	void Rotate(float RotateX, float RotateY, float RotateZ)
 	{
-		m_rotateInfo[0] = ToRadian(RotateX);		// синус
-		m_rotateInfo[1] = ToRadian(RotateY);		// минус синус
-		m_rotateInfo[2] = ToRadian(RotateZ);		// косинус
+		m_rotateInfo[0] = RotateX;
+		m_rotateInfo[1] = RotateY;
+		m_rotateInfo[2] = RotateZ;
+
+		//m_rotateInfo[0] = ToRadian(RotateX);		// синус
+		//m_rotateInfo[1] = ToRadian(RotateY);		// минус синус
+		//m_rotateInfo[2] = ToRadian(RotateZ);		// косинус
 	}
 	void Scale(float ScaleX, float ScaleY, float ScaleZ)
 	{
@@ -128,8 +132,8 @@ void RenderSceneCB() {
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	static float Scale = 0.5f;
-	Scale += 0.01f;
+	static float Scale = 0.0001f;
+	Scale += 0.005f;
 
 	Pipeline p;
 	p.Scale(sinf(Scale * 0.1f), cosf(Scale * 0.1f), sinf(Scale * 0.1f));
@@ -162,6 +166,7 @@ static void createVertexBuffer() {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vecArrTrngl), vecArrTrngl, GL_STATIC_DRAW);
 
+	//вершинный буфер:
 	unsigned int Indices[] = {	0, 3, 1,
 								1, 3, 2,
 								2, 3, 0,
@@ -227,7 +232,6 @@ static void compileShaders() {
 }
 
 
-
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
@@ -240,7 +244,7 @@ int main(int argc, char** argv)
 
 	glutDisplayFunc(RenderSceneCB);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.0f, 0.2f, 0.0f, 0.0f);
 
 	GLenum res = glewInit();
 	if (res != GLEW_OK)
