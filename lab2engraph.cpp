@@ -19,13 +19,13 @@ static const char* pVS = "															\n\
                                                                                     \n\
 layout (location = 0) in vec3 Position;                                             \n\
                                                                                     \n\
-uniform mat4 gWorld;                                                                \n\
+uniform mat4 gWVP;                                                                \n\
                                                                                     \n\
 out vec4 Color;                                                                     \n\
                                                                                     \n\
 void main()                                                                         \n\
 {                                                                                   \n\
-    gl_Position = gWorld * vec4(Position, 1.0);                                     \n\
+    gl_Position = gWVP * vec4(Position, 1.0);                                     \n\
     Color = vec4(clamp(Position, 0.0, 1.0), 1.0);                                   \n\
 }";
 
@@ -42,7 +42,8 @@ void main()                                                                     
 }";
 
 GLuint VBO;
-GLuint gWorldLocation;
+//Gluint gWorldLocation
+GLuint gWVP;			//World-View-Projection
 GLuint IBO;				//указатель на буферный объект для индексов вершин
 
 
@@ -96,7 +97,11 @@ public:
 		m_persProj.zNear = zNear;
 		m_persProj.zFar = zFar;
 	}
-
+	void SetCamera(glm::vec3 Pos, glm::vec3 Target, glm::vec3 Up) {
+		m_camera.Pos = Pos;
+		m_camera.Target = Target;
+		m_camera.Up = Up;
+	}
 
 	const glm::mat4x4* GetTrans();
 	void InitScaleTransform(glm::mat4x4& m);
@@ -116,6 +121,12 @@ private:
 		float zNear;
 		float zFar;
 	}m_persProj;
+	
+	struct {
+		glm::vec3 Pos;		//X
+		glm::vec3 Target;	//Z
+		glm::vec3 Up;		//Y
+	}m_camera;
 };
 void Pipeline::InitTranslationTransform(glm::mat4x4& m) {
 
@@ -178,7 +189,19 @@ const glm::mat4x4* Pipeline::GetTrans()
 	m_transformation = PersProjTrans * TranslationTrans * RotateTrans * ScaleTrans;
 	return &m_transformation;
 }
+void InitCameraTransform(glm::mat4x4 m, const glm::vec3& Target, const glm::vec3& Up) {
+	glm::vec3 N = Target;
+	N = glm::normalize(N);
+	glm::vec3 U = Up;
+	U = glm::normalize(U);
+	U = glm::cross(U, Target);
+	glm::vec3 V = glm::cross(N, U);
 
+	m[0][0] = U.x; m[0][1] = U.y; m[0][2] = U.z; m[0][3] = 0.0f;
+	m[1][0] = V.x; m[1][1] = V.y; m[1][2] = V.z; m[1][3] = 0.0f;
+	m[2][0] = N.x; m[2][1] = N.y; m[2][2] = N.z; m[2][3] = 0.0f;
+	m[3][0] = 0.0f; m[3][1] = 0.0f; m[3][2] = 0.0f; m[3][3] = 1.0f;
+}
 
 void RenderSceneCB() {
 
@@ -192,7 +215,7 @@ void RenderSceneCB() {
 	p.Scale(sinf(Scale * 0.1f), cosf(Scale * 0.1f), sinf(Scale * 0.1f));
 	p.WorldPos(sinf(Scale), 0.0f, 0.0f);
 	p.Rotate(sinf(Scale) * 90.0f, -sinf(Scale) * 90.0f, cosf(Scale) * 90.0f);
-	glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, (const GLfloat*)p.GetTrans());
+	glUniformMatrix4fv(gWVP, 1, GL_TRUE, (const GLfloat*)p.GetTrans());
 
 
 	glEnableVertexAttribArray(0);
@@ -227,7 +250,7 @@ static void createVertexBuffer() {
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
-
+	
 }
 
 static void createShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType) {
@@ -274,8 +297,9 @@ static void compileShaders() {
 
 	glUseProgram(ShaderProgram);
 
-	gWorldLocation = glGetUniformLocation(ShaderProgram, "gWorld");
-	assert(gWorldLocation != 0xFFFFFFFF);
+	//gWVP = glGetUniformLocation(ShaderProgram, "gWVP");
+	gWVP = glGetUniformLocation(ShaderProgram, "gWVP");
+	assert(gWVP != 0xFFFFFFFF);
 }
 
 
