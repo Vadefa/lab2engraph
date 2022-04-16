@@ -61,7 +61,7 @@ void RenderSceneCB() {
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
-	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);	//теперь мы выводим 
+	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);	//задали для отрисовки треугольника из 12 вершин типа unsigned int
 	glDisableVertexAttribArray(0);
 
 	glutSwapBuffers();
