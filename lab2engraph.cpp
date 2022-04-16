@@ -1,7 +1,7 @@
 ﻿#define ToRadian(x) ((x) * 3.14f/ 180.0f)
 #define ToDegree(x) ((x) * 180.0f / 3.14f)
 #define WINDOW_HEIGHT 1024
-#define WINDOW_WIDTH 1024
+#define WINDOW_WIDTH 768
 
 
 #include <iostream>
@@ -206,7 +206,7 @@ const glm::mat4x4* Pipeline::GetTrans()
 	m_transformation = PersProjTrans * TranslationTrans * RotateTrans * ScaleTrans;
 	return &m_transformation;*/
 
-	glm::mat4x4 ScaleTrans, RotateTrans, TranslationTrans, CameraTranslationTrans, CameraRotateTrans, PersProjTrans;
+	glm::mat4x4 ScaleTrans, RotateTrans, TranslationTrans, CameraTranslationTrans, CameraRotateTrans, PersProjTrans = glm::mat4x4{ 1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1 };
 	
 	InitScaleTransform(ScaleTrans);
 	InitRotateTransform(RotateTrans);
