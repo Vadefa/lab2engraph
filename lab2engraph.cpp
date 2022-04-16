@@ -37,7 +37,7 @@ void RenderSceneCB() {
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// теперь размер константный
+	//статичный размер создаётся здесь и удаляется лишь при завершении программы
 	static float Scale = 0.0f;
 	Scale += 0.001f;
 
@@ -58,7 +58,7 @@ void RenderSceneCB() {
 	glDisableVertexAttribArray(0);
 
 	glutSwapBuffers();
-	//glutPostRedisplay(); // останавливает повторный вызов ленивой функции
+	glutPostRedisplay(); // останавливает повторный вызов ленивой функции
 }
 
 
