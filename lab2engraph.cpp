@@ -37,7 +37,7 @@ void main()                                                                     
 
 GLuint VBO;
 GLuint gWorldLocation;
-
+GLuint IBO;				//указатель на буферный объект для индексов вершин
 
 
 void RenderSceneCB() {
