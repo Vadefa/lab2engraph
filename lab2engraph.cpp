@@ -57,9 +57,11 @@ void RenderSceneCB() {
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);		//привязали и индексный буфер тоже
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);	//теперь мы выводим 
 	glDisableVertexAttribArray(0);
 
 	glutSwapBuffers();
@@ -68,14 +70,31 @@ void RenderSceneCB() {
 
 
 static void createVertexBuffer() {
-	glm::vec3 vecArrTrngl[3];
-	vecArrTrngl[0] = glm::vec3(-1.0f, -1.0f, 0.0f);
-	vecArrTrngl[1] = glm::vec3(1.0f, -1.0f, 0.0f);
-	vecArrTrngl[2] = glm::vec3(0.0f, 1.0f, 0.0f);
+	/*glm::vec3 vertices[3];
+	vertices[0] = glm::vec3(-1.0f, -1.0f, 0.0f);
+	vertices[1] = glm::vec3(1.0f, -1.0f, 0.0f);
+	vertices[2] = glm::vec3(0.0f, 1.0f, 0.0f);*/
+
+	glm::vec3 vertices[4];						//мы делаем пирамиду.теперь нам нужно 4 вектора для 4 вершин и 4 треугольников
+	vertices[0] = glm::vec3(-1.0f, -1.0f, 0.0f);
+	vertices[1] = glm::vec3(0.0f, -1.0f, 1.0f);
+	vertices[2] = glm::vec3(1.0f, -1.0f, 0.0f);
+	vertices[3] = glm::vec3(0.0f, 1.0f, 0.0f);
+
 
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vecArrTrngl), vecArrTrngl, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+
+	unsigned int Indices[] = { 0, 3, 1,		// массив индексов, указывающих на расположение вершин в вершинном буфере
+							1, 3, 2,
+							2, 3, 0,
+							0, 2, 1 };
+
+	glGenBuffers(1, &IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 
 }
 
