@@ -21,24 +21,24 @@ layout (location = 0) in vec3 Position;                                         
                                                                                     \n\
 uniform mat4 gWVP;                                                                \n\
                                                                                     \n\
-out vec4 Color;                                                                     \n\
+//out vec4 Color;                                                                     \n\
                                                                                     \n\
 void main()                                                                         \n\
 {                                                                                   \n\
     gl_Position = gWVP * vec4(Position, 1.0);                                     \n\
-    Color = vec4(clamp(Position, 0.0, 1.0), 1.0);                                   \n\
+    //Color = vec4(clamp(Position, 0.0, 1.0), 1.0);                                   \n\
 }";
 
 //код скрипта фрагментного шейдера
 static const char* pFS = "															\n\
 #version 330                                                                        \n\
                                                                                     \n\
-in vec4 Color;                                                                      \n\
+//in vec4 Color;                                                                      \n\
 out vec4 FragColor;                                                                 \n\
                                                                                     \n\
 void main()                                                                         \n\
 {                                                                                   \n\
-    FragColor = Color;                                                              \n\
+    FragColor = vec4(1.0, 0.0, 0.0, 1.0);//Color;                                                              \n\
 }";
 
 GLuint VBO;
