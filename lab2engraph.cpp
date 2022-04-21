@@ -160,7 +160,7 @@ void Pipeline::InitPerspectiveProj(glm::mat4x4& m) const
 	const float zNear = m_persProj.zNear;						//также близости
 	const float zFar = m_persProj.zFar;							//и дальности
 	const float zRange = zNear - zFar;
-	const float tanHalfFOV = tanf(ToRadian(m_persProj.FOV / 2.0));	//а также поля обзора
+	const float tanHalfFOV = tanf(ToRadian(m_persProj.FOV / 2.0f));	//а также поля обзора
 
 	m[0][0] = 1.0f / (tanHalfFOV * ar);
 	m[0][1] = 0.0f;
@@ -228,7 +228,7 @@ void RenderSceneCB() {
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	static float Scale = 0.0001f;
+	static float Scale = 0.001f;
 	Scale += 0.01f;
 
 	Pipeline p;
