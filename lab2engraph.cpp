@@ -22,6 +22,9 @@ GLuint mvLoc, projLoc;
 int width, height;
 float aspect;
 glm::mat4 pMat, vMat, mMat, mvMat;
+
+glm::mat4 tMat, rMat;	////	added two matrices - translation and rotation for using current time to compute different translations in x, y, and z
+
 void setupVertices(void) {						//2) 
 	float vertexPositions[108] = {				//	36 vertices, 12 triangles, 2 on each cube's face, makes 2x2x2 cube placed at origin
 	 -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
@@ -51,6 +54,9 @@ void init(GLFWwindow* window) {					//1)init() performs tasks that only need to 
 }
 void display(GLFWwindow* window, double currentTime) {	//3)display() may be called	repeatedly and the rate at which it is called is referred to as the frame rate
 	glClear(GL_DEPTH_BUFFER_BIT);	//	usually necessary to clear the depth buffer before rendering a frame so that hidden surface removal occurs properly
+
+	glClear(GL_COLOR_BUFFER_BIT);	////	as we added color changing we need to clear the color buffer too
+
 	glUseProgram(renderingProgram);	//	enabling shaders by installing the GLSL code on the GPU.
 									//	 this doesn’t run the shader program, but it does enable subsequent OpenGL calls to determine the shader’s vertex attribute and uniform locations
 	/// get the uniform variables for the MV and projection matrices
@@ -62,7 +68,18 @@ void display(GLFWwindow* window, double currentTime) {	//3)display() may be call
 	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f); // 1.0472 radians = 60 degrees
 	/// build view matrix, model matrix, and model-view matrix
 	vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
-	mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
+
+	////// use current time to compute different translations in x, y, and z
+	tMat = glm::translate(glm::mat4(1.0f),
+		glm::vec3(sin(0.35f * currentTime) * 2.0f, cos(0.52f * currentTime) * 2.0f, sin(0.7f * currentTime) * 2.0f));
+	rMat = glm::rotate(glm::mat4(1.0f), 1.75f * (float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
+	rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(1.0f, 0.0f, 0.0f));
+	rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(0.0f, 0.0f, 1.0f));
+	////// the 1.75 adjusts the rotation speed
+	mMat = tMat * rMat;	////	rotation initially -> next the translation performed
+
+	////mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
+	
 	mvMat = vMat * mMat;
 
 	/// copy perspective and MV matrices to corresponding uniform variables
