@@ -22,8 +22,8 @@ GLuint mvLoc, projLoc;
 int width, height;
 float aspect;
 glm::mat4 pMat, vMat, mMat, mvMat;
-void setupVertices(void) { // 36 vertices, 12 triangles, makes 2x2x2 cube placed at origin
-	float vertexPositions[108] = {
+void setupVertices(void) {						//2) 
+	float vertexPositions[108] = {				//	36 vertices, 12 triangles, 2 on each cube's face, makes 2x2x2 cube placed at origin
 	 -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
 	 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
 	 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f,
@@ -37,46 +37,47 @@ void setupVertices(void) { // 36 vertices, 12 triangles, makes 2x2x2 cube placed
 	 -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
 	 1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f
 	};
-	glGenVertexArrays(1, vao);
-	glBindVertexArray(vao[0]);
-	glGenBuffers(numVBOs, vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);
+	glGenVertexArrays(1, vao);					//	creating VAO
+	glBindVertexArray(vao[0]);					//	make the specified VAO "active" so that the generated buffers will be accosiated with that VAO
+	glGenBuffers(numVBOs, vbo);					//	creating VBO
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);		//	make 0th buffer "active" 
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);	//	copy the array containing the cube's vertices into the active buffer (0th VBO)
 }
-void init(GLFWwindow* window) {
-	renderingProgram = Utils::createShaderProgram("vertShader.glsl", "fragShader.glsl");
+void init(GLFWwindow* window) {					//1)init() performs tasks that only need to be done once:
+	renderingProgram = Utils::createShaderProgram("vertShader.glsl", "fragShader.glsl");	//	reading in shader code and building the rendeering program
 	cameraX = 0.0f; cameraY = 0.0f; cameraZ = 8.0f;
-	cubeLocX = 0.0f; cubeLocY = -2.0f; cubeLocZ = 0.0f; // shift down Y to reveal perspective
-	setupVertices();
+	cubeLocX = 0.0f; cubeLocY = -2.0f; cubeLocZ = 0.0f; /// shift down Y to reveal perspective
+	setupVertices();																		//	loading cube vertices into the VBO	
 }
-void display(GLFWwindow* window, double currentTime) {
-	glClear(GL_DEPTH_BUFFER_BIT);
-	glUseProgram(renderingProgram);
-	// get the uniform variables for the MV and projection matrices
-	mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
+void display(GLFWwindow* window, double currentTime) {	//3)display() may be called	repeatedly and the rate at which it is called is referred to as the frame rate
+	glClear(GL_DEPTH_BUFFER_BIT);	//	usually necessary to clear the depth buffer before rendering a frame so that hidden surface removal occurs properly
+	glUseProgram(renderingProgram);	//	enabling shaders by installing the GLSL code on the GPU.
+									//	 this doesn’t run the shader program, but it does enable subsequent OpenGL calls to determine the shader’s vertex attribute and uniform locations
+	/// get the uniform variables for the MV and projection matrices
+	mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");	//	 get locations of uniforms in the shader program
 	projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
-	// build perspective matrix
+	/// build perspective matrix
 	glfwGetFramebufferSize(window, &width, &height);
 	aspect = (float)width / (float)height;
 	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f); // 1.0472 radians = 60 degrees
-	// build view matrix, model matrix, and model-view matrix
+	/// build view matrix, model matrix, and model-view matrix
 	vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
 	mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
 	mvMat = vMat * mMat;
 
-	// copy perspective and MV matrices to corresponding uniform variables
-	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
+	/// copy perspective and MV matrices to corresponding uniform variables
+	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));	//	send matrix data to the uniform variables
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
-	// associate VBO with the corresponding vertex attribute in the vertex shader
+	/// associate VBO with the corresponding vertex attribute in the vertex shader
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
-	// adjust OpenGL settings and draw model
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);	//	enables the buffer containing the cube vertices
+	glEnableVertexAttribArray(0);							//	and attaches it to 0th vertex attribute to prepare for sending the vertices to the shader.
+	/// adjust OpenGL settings and draw model
+	glEnable(GL_DEPTH_TEST);	//	enable depth testing
+	glDepthFunc(GL_LEQUAL);		//	and specify the particular depth test we wish OpenGL to use
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
-int main(void) { // main() is unchanged from before
+int main(void) { /// main() is unchanged from before
 	if (!glfwInit()) { exit(EXIT_FAILURE); }
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
